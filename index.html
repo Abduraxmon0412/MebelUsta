@@ -867,7 +867,10 @@ $("ckBack").addEventListener("change",build3D);
 $("btnPrint").addEventListener("click",()=>window.print());
 $("btnAdd").addEventListener("click",()=>{
   const p=PRESETS[$("presetSel").value]||PRESETS.shkaf;
-  order.items.push(cloneItem(p));
+  const it=cloneItem(p);
+  const same=order.items.filter(x=>x.name===it.name||x.name.indexOf(it.name+" ")===0).length;
+  if(same>0)it.name=it.name+" "+(same+1);
+  order.items.push(it);
   order.active=order.items.length-1;
   loadFields();recompute();
 });
