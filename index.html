@@ -148,12 +148,30 @@ table.data tr.ihead td{background:var(--surface2);font:600 12.5px 'Archivo',sans
 .btn.small{padding:6px 10px}
 .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
 #printHead{display:none}
+#printDoc{display:none;color:var(--ink)}
+#printDoc h1{font-family:'Archivo',sans-serif;font-size:26px;margin:0 0 4px}
+#printDoc h2{font-family:'Archivo',sans-serif;font-size:18px;margin:26px 0 10px;border-bottom:1.5px solid var(--ink);padding-bottom:4px}
+#printDoc .pdsub{color:var(--ink2);margin:0 0 14px;font-size:13px}
+#printDoc .pdtotal{font:600 16px 'Archivo',sans-serif;margin-top:12px}
 svg text{font-family:var(--mono)}
 @media print{
+  :root,:root[data-theme="dark"],:root:not([data-theme="light"]){
+    --bg:#fff;--surface:#fff;--surface2:#f2f2ef;--ink:#141414;--ink2:#565656;
+    --line:#b9b9b4;--line2:#e0e0dc;--accent:#20508a;--accent-ink:#fff;--accent-soft:#e7edf6;
+    --wood:#dbbd90;--wood2:#c3a173;--warn-bg:#f4ead1;--warn-ink:#6d4f12;
+    --canvas:#fff;--grid1:#ccc;--grid2:#e5e5e5;--sel:#b4483e;
+  }
   .sidebar,.topbar,.tabs,.btn,.scenebar,.cuttools,.edpanel,.filebtns{display:none !important}
   .layout{display:block} .panel{padding:0}
   body{background:#fff;color:#000}
   #printHead{display:block;font-family:'Archivo',sans-serif;font-size:15px;margin:0 0 12px;padding-bottom:8px;border-bottom:2px solid #000}
+  body.printing .layout,body.printing #printHead{display:none !important}
+  body.printing #printDoc{display:block}
+  #printDoc h2{break-before:page;page-break-before:always}
+  #printDoc .drawcard,#printDoc .sheetblock,#printDoc .pcard,#printDoc table{break-inside:avoid;page-break-inside:avoid}
+  #printDoc .drawgrid{display:block}
+  #printDoc .drawcard{margin-bottom:14px}
+  #printDoc .isec{margin-top:20px}
 }
 @media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto !important} }
 </style>
@@ -225,7 +243,9 @@ svg text{font-family:var(--mono)}
     <label class="check"><input id="ckDoors" type="checkbox" checked> Eshik/fasadlarni ko'rsatish</label>
     <label class="check"><input id="ckBack" type="checkbox" checked> Orqa devor (DVP)</label>
   </div>
-  <button class="btn" id="btnPrint" type="button">🖨 Chop etish (faol bo'lim)</button>
+  <button class="btn primary" id="btnPdf" type="button" style="width:100%">📄 PDF hujjat (to'liq zakaz)</button>
+  <button class="btn" id="btnPrint" type="button" style="width:100%;margin-top:6px">🖨 Chop etish (faol bo'lim)</button>
+  <p class="hint" style="margin:6px 0 0">PDF: ochilgan oynada «Printer» sifatida «Save as PDF» ni tanlang.</p>
   <div class="warns" id="warns"></div>
 </aside>
 
@@ -279,6 +299,7 @@ svg text{font-family:var(--mono)}
   </section>
 </main>
 </div>
+<div id="printDoc"></div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script>
@@ -1306,7 +1327,7 @@ let scene,camera,renderer,group,theta=0.55,phi=1.18,radius=4,sceneMode="one";
 function themeColor(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
 function init3D(){
   const canvas=$("c3d");
-  renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+  renderer=new THREE.WebGLRenderer({canvas,antialias:true,preserveDrawingBuffer:true});
   scene=new THREE.Scene();
   camera=new THREE.PerspectiveCamera(45,1,0.05,80);
   scene.add(new THREE.AmbientLight(0xffffff,0.75));
@@ -1465,6 +1486,62 @@ function draw3D(){
   renderer.render(scene,camera);
 }
 
+/* ---------- PDF hujjat (to'liq zakaz, brauzer print orqali) ---------- */
+function openPrintDoc(){
+  const pd=$("printDoc");
+  const dt=new Date().toLocaleDateString();
+  // 3D surat: butun zakaz, oq fonda
+  const prevMode=sceneMode;
+  sceneMode="all";
+  scene.background=new THREE.Color("#ffffff");
+  build3D();
+  const shot=renderer.domElement.toDataURL("image/png");
+  applyTheme3D();
+  sceneMode=prevMode;
+  build3D();
+  // buyumlar jadvali
+  const itemsRows=order.items.map((it,i)=>`<tr><td class="num">${i+1}</td><td>${it.name}</td><td class="dim">${it.W} × ${it.H} × ${it.D}</td><td>${it.kind==="gap"?"texnika o'rni":("LDSP "+it.t+" · "+it.color)}</td></tr>`).join("");
+  const ldspTotal=packedGroups.filter(g=>!g.isDVP).reduce((a,g)=>a+g.res.sheets.length,0);
+  // materiallar klonlari: input -> matn
+  const matC=$("matTbl").cloneNode(true), hwC=$("hwTbl").cloneNode(true);
+  [matC,hwC].forEach(tbl=>tbl.querySelectorAll("input").forEach(inp=>{
+    const s=document.createElement("b");s.textContent=fmt(parseInt(inp.value,10)||0);inp.replaceWith(s);
+  }));
+  // bichuv kloni: asboblar panelisiz
+  const cutC=document.createElement("div");
+  cutC.innerHTML=$("cutArea").innerHTML;
+  const ct=cutC.querySelector(".cuttools");if(ct)ct.remove();
+  pd.innerHTML=`
+    <div class="pdcover">
+      <h1>${order.name||"Zakaz"}</h1>
+      <p class="pdsub">Shkaf Ustasi · ${dt} · buyumlar: ${order.items.length} ta · LDSP: ${ldspTotal} list · taxminiy tannarx: ${$("totalCost").textContent}</p>
+      <img src="${shot}" alt="3D ko'rinish" style="width:100%;max-width:920px;border:1px solid var(--line);border-radius:8px">
+      <table class="data" style="margin-top:14px"><thead><tr><th>№</th><th>Buyum</th><th>O'lcham, mm</th><th>Material</th></tr></thead><tbody>${itemsRows}</tbody></table>
+    </div>
+    <h2>Detallar ro'yxati</h2>
+    <table class="data">${$("partsTbl").innerHTML}</table>
+    <h2>Bichuv kartasi</h2>
+    ${cutC.innerHTML}
+    <h2>Chizmalar (teshiklar bilan)</h2>
+    <div class="drawgrid">${$("drawGrid").innerHTML}</div>
+    <h2>Materiallar va tannarx</h2>
+    <table class="data">${matC.innerHTML}</table>
+    <br>
+    <table class="data">${hwC.innerHTML}</table>
+    <p class="pdtotal">Jami taxminiy tannarx: ${$("totalCost").textContent}</p>`;
+  document.body.classList.add("printing");
+  let cleaned=false;
+  const done=()=>{
+    if(cleaned)return;cleaned=true;
+    document.body.classList.remove("printing");
+    pd.innerHTML="";
+    window.removeEventListener("afterprint",done);
+  };
+  window.addEventListener("afterprint",done);
+  window.print();
+  setTimeout(done,90000);
+}
+
 /* ---------- Umumiy ---------- */
 function recompute(){
   MS=order.items.map((it,i)=>compute(it,i));
@@ -1483,6 +1560,7 @@ function recompute(){
 $("ckDoors").addEventListener("change",build3D);
 $("ckBack").addEventListener("change",build3D);
 $("btnPrint").addEventListener("click",()=>window.print());
+$("btnPdf").addEventListener("click",openPrintDoc);
 $("btnConv").addEventListener("click",convertToCustom);
 $("btnSave").addEventListener("click",exportOrder);
 $("btnOpen").addEventListener("click",()=>$("fileOpen").click());
