@@ -1,0 +1,605 @@
+<title>Shkaf Ustasi</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#EEF0ED; --surface:#FFFFFF; --surface2:#F6F7F4;
+  --ink:#22261F; --ink2:#5C6156; --line:#D9DBD3; --line2:#E6E8E1;
+  --accent:#35618E; --accent-ink:#FFFFFF; --accent-soft:#E3EBF3;
+  --wood:#C9A776; --wood2:#B08D5F; --warn-bg:#F6ECD9; --warn-ink:#7A5A1E;
+  --canvas:#E4E7E2; --grid1:#B9BDB4; --grid2:#D2D5CC;
+  --mono:'IBM Plex Mono',ui-monospace,Consolas,monospace;
+}
+:root:not([data-theme="light"]){
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    color-scheme:dark;
+    --bg:#181A17; --surface:#22241F; --surface2:#2A2C26;
+    --ink:#E8E7DF; --ink2:#A2A698; --line:#3A3D34; --line2:#2F322A;
+    --accent:#7FA8D0; --accent-ink:#101418; --accent-soft:#2A3542;
+    --wood:#A5875E; --wood2:#8C7048; --warn-bg:#3A3222; --warn-ink:#E0C583;
+    --canvas:#1E211D; --grid1:#3C4038; --grid2:#2C2F29;
+  }
+}
+:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#181A17; --surface:#22241F; --surface2:#2A2C26;
+  --ink:#E8E7DF; --ink2:#A2A698; --line:#3A3D34; --line2:#2F322A;
+  --accent:#7FA8D0; --accent-ink:#101418; --accent-soft:#2A3542;
+  --wood:#A5875E; --wood2:#8C7048; --warn-bg:#3A3222; --warn-ink:#E0C583;
+  --canvas:#1E211D; --grid1:#3C4038; --grid2:#2C2F29;
+}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;line-height:1.45}
+.topbar{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--surface)}
+.brand{font-family:'Archivo',sans-serif;font-weight:700;font-size:19px;letter-spacing:.2px;display:flex;align-items:center;gap:9px}
+.brand .mark{width:26px;height:26px;border-radius:6px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:14px}
+.brand small{font-weight:500;color:var(--ink2);font-size:12px;margin-left:2px}
+.chips{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap}
+.chip{background:var(--surface2);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:12.5px;color:var(--ink2);white-space:nowrap}
+.chip b{color:var(--ink);font-family:var(--mono);font-weight:500}
+.layout{display:grid;grid-template-columns:300px 1fr;gap:0;min-height:calc(100vh - 54px)}
+.sidebar{border-right:1px solid var(--line);background:var(--surface);padding:16px 16px 30px}
+.main{padding:0 18px 40px;min-width:0}
+@media (max-width:860px){ .layout{grid-template-columns:1fr} .sidebar{border-right:none;border-bottom:1px solid var(--line)} }
+.grp{margin-bottom:18px}
+.grp h3{margin:0 0 8px;font-family:'Archivo',sans-serif;font-size:12px;font-weight:600;letter-spacing:.09em;text-transform:uppercase;color:var(--ink2)}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.field{display:flex;flex-direction:column;gap:3px}
+.field.full{grid-column:1/-1}
+.field label{font-size:12px;color:var(--ink2)}
+.field input[type=number],.field select{background:var(--surface2);border:1px solid var(--line);border-radius:7px;padding:6px 9px;font:500 14px var(--mono);color:var(--ink);width:100%}
+.field input:focus,.field select:focus{outline:2px solid var(--accent);outline-offset:-1px}
+.check{display:flex;align-items:center;gap:8px;font-size:13px;padding:3px 0;cursor:pointer}
+.check input{accent-color:var(--accent);width:15px;height:15px}
+.warns{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.warn{background:var(--warn-bg);color:var(--warn-ink);border-radius:7px;padding:7px 10px;font-size:12.5px}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);padding:12px 0 0;z-index:5;flex-wrap:wrap}
+.tab{border:none;background:none;color:var(--ink2);font:600 13.5px 'Archivo',sans-serif;letter-spacing:.02em;padding:9px 14px;cursor:pointer;border-radius:8px 8px 0 0;border-bottom:2px solid transparent}
+.tab:hover{color:var(--ink);background:var(--surface2)}
+.tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.tab:focus-visible{outline:2px solid var(--accent)}
+.panel{padding:18px 0}
+.pcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+#c3dwrap{position:relative;height:min(66vh,640px)}
+#c3d{width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.c3dhud{position:absolute;left:12px;bottom:12px;display:flex;gap:7px;flex-wrap:wrap}
+.hudchip{background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:4px 10px;font:500 12.5px var(--mono);color:var(--ink)}
+.hint{color:var(--ink2);font-size:12.5px;margin:8px 2px}
+table.data{width:100%;border-collapse:collapse;font-size:13.5px}
+table.data th{font-family:'Archivo',sans-serif;font-size:11.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink2);font-weight:600;text-align:left;padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap}
+table.data td{padding:8px 12px;border-bottom:1px solid var(--line2);vertical-align:top}
+table.data tr:last-child td{border-bottom:none}
+table.data td.num{font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.data td.dim{font-family:var(--mono);white-space:nowrap}
+.tag{display:inline-block;background:var(--accent-soft);color:var(--accent);border-radius:5px;padding:1px 7px;font:600 11.5px 'Archivo',sans-serif;margin-right:6px}
+.scroll{overflow-x:auto}
+.sheetblock{margin-bottom:26px}
+.sheethead{display:flex;align-items:baseline;gap:12px;margin:0 2px 8px;flex-wrap:wrap}
+.sheethead h4{margin:0;font-family:'Archivo',sans-serif;font-size:15px}
+.sheethead span{color:var(--ink2);font-size:12.5px;font-family:var(--mono)}
+.drawgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(430px,1fr));gap:18px}
+@media (max-width:520px){ .drawgrid{grid-template-columns:1fr} }
+.drawcard{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:14px}
+.drawcard h4{margin:0 0 2px;font-family:'Archivo',sans-serif;font-size:15px}
+.drawcard .sub{color:var(--ink2);font-size:12.5px;font-family:var(--mono);margin-bottom:10px}
+.holetbl{width:100%;border-collapse:collapse;font:12.5px var(--mono);margin-top:10px}
+.holetbl th{text-align:left;color:var(--ink2);font:600 11px 'Archivo',sans-serif;letter-spacing:.06em;text-transform:uppercase;padding:4px 8px;border-bottom:1px solid var(--line)}
+.holetbl td{padding:3px 8px;border-bottom:1px solid var(--line2)}
+.note{color:var(--ink2);font-size:12.5px;margin-top:8px}
+.mats{display:grid;grid-template-columns:1fr;gap:16px;max-width:860px}
+.pricein{width:110px;background:var(--surface2);border:1px solid var(--line);border-radius:6px;padding:4px 8px;font:500 13px var(--mono);color:var(--ink);text-align:right}
+.total{display:flex;justify-content:space-between;align-items:center;background:var(--accent);color:var(--accent-ink);border-radius:10px;padding:14px 18px;font-family:'Archivo',sans-serif;font-weight:600;font-size:16px;max-width:860px;margin-top:16px}
+.total b{font-size:21px;font-family:var(--mono);font-weight:500}
+.btn{background:var(--surface);border:1px solid var(--line);color:var(--ink);border-radius:8px;padding:7px 14px;font:600 13px 'Archivo',sans-serif;cursor:pointer}
+.btn:hover{background:var(--surface2)}
+svg text{font-family:var(--mono)}
+@media print{
+  .sidebar,.topbar,.tabs,.btn{display:none !important}
+  .layout{display:block} .panel{padding:0}
+  body{background:#fff;color:#000}
+}
+@media (prefers-reduced-motion: reduce){ *{scroll-behavior:auto !important} }
+</style>
+
+<div class="topbar">
+  <div class="brand"><span class="mark">⌗</span>Shkaf Ustasi <small>parametrik konstruktor</small></div>
+  <div class="chips">
+    <span class="chip">LDSP: <b id="chipSheets">–</b></span>
+    <span class="chip">Detallar: <b id="chipParts">–</b></span>
+    <span class="chip">Kromka: <b id="chipEdge">–</b></span>
+    <span class="chip">Jami: <b id="chipCost">–</b></span>
+  </div>
+</div>
+
+<div class="layout">
+<aside class="sidebar">
+  <div class="grp">
+    <h3>Gabarit o'lchamlar, mm</h3>
+    <div class="fields">
+      <div class="field"><label for="inW">Kenglik (W)</label><input id="inW" type="number" value="1600" min="400" max="3000" step="10"></div>
+      <div class="field"><label for="inH">Balandlik (H)</label><input id="inH" type="number" value="2200" min="500" max="2750" step="10"></div>
+      <div class="field"><label for="inD">Chuqurlik (D)</label><input id="inD" type="number" value="520" min="250" max="900" step="10"></div>
+      <div class="field"><label for="inT">LDSP qalinligi</label><select id="inT"><option value="16" selected>16 mm</option><option value="18">18 mm</option></select></div>
+    </div>
+  </div>
+  <div class="grp">
+    <h3>Konstruksiya</h3>
+    <div class="fields">
+      <div class="field"><label for="inSec">Seksiyalar</label><input id="inSec" type="number" value="2" min="1" max="6" step="1"></div>
+      <div class="field"><label for="inShelf">Polka / seksiya</label><input id="inShelf" type="number" value="4" min="0" max="8" step="1"></div>
+      <div class="field"><label for="inDoors">Eshiklar soni</label><input id="inDoors" type="number" value="2" min="0" max="6" step="1"></div>
+      <div class="field"><label for="inTsk">Tsokol, mm</label><input id="inTsk" type="number" value="70" min="0" max="150" step="5"></div>
+    </div>
+  </div>
+  <div class="grp">
+    <h3>3D ko'rinish</h3>
+    <label class="check"><input id="ckDoors" type="checkbox" checked> Eshiklarni ko'rsatish</label>
+    <label class="check"><input id="ckBack" type="checkbox" checked> Orqa devor (DVP)</label>
+  </div>
+  <button class="btn" id="btnPrint" type="button">🖨 Chop etish (faol bo'lim)</button>
+  <div class="warns" id="warns"></div>
+</aside>
+
+<main class="main">
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="t3d" type="button">3D model</button>
+    <button class="tab" data-tab="tparts" type="button">Detallar</button>
+    <button class="tab" data-tab="tcut" type="button">Bichuv</button>
+    <button class="tab" data-tab="tdraw" type="button">Chizmalar</button>
+    <button class="tab" data-tab="tmat" type="button">Materiallar</button>
+  </nav>
+
+  <section class="panel" id="t3d">
+    <div class="pcard" id="c3dwrap">
+      <canvas id="c3d"></canvas>
+      <div class="c3dhud" id="hud"></div>
+    </div>
+    <p class="hint">Sichqoncha bilan aylantiring, g'ildirak bilan yaqinlashtiring. O'lchamni o'zgartirsangiz model darhol yangilanadi.</p>
+  </section>
+
+  <section class="panel" id="tparts" hidden>
+    <div class="pcard scroll"><table class="data" id="partsTbl"></table></div>
+    <p class="hint">O'lchamlar tayyor detal bo'yicha (kromka hisobga olinmagan xolda LDSP dan qirqiladi). Tekstura yo'nalishi — birinchi o'lcham bo'ylab.</p>
+  </section>
+
+  <section class="panel" id="tcut">
+    <div id="cutArea"></div>
+  </section>
+
+  <section class="panel" id="tdraw" hidden>
+    <div class="drawgrid" id="drawGrid"></div>
+  </section>
+
+  <section class="panel" id="tmat" hidden>
+    <div class="mats">
+      <div class="pcard scroll"><table class="data" id="matTbl"></table></div>
+      <div class="pcard scroll"><table class="data" id="hwTbl"></table></div>
+    </div>
+    <div class="total"><span>Taxminiy tannarx (material + furnitura)</span><b id="totalCost">–</b></div>
+    <p class="hint">Narxlarni o'zingizniki bilan almashtiring — ular shu brauzerda eslab qolinadi. Ish haqi va kesish xizmati kiritilmagan.</p>
+  </section>
+</main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const fmt=n=>Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g," ");
+const mm=n=>Math.round(n);
+
+/* ---------- Narxlar (tahrirlanadi, localStorage) ---------- */
+const PRICE_DEF={ldsp:550000,dvp:180000,e2:3000,e04:1500,konf:500,pin:300,petlya:12000,ruchka:15000,pod:1500,shurup:100};
+let prices={...PRICE_DEF};
+try{const s=localStorage.getItem("shkaf-prices");if(s)prices={...PRICE_DEF,...JSON.parse(s)};}catch(e){}
+function savePrices(){try{localStorage.setItem("shkaf-prices",JSON.stringify(prices));}catch(e){}}
+
+/* ---------- Model hisobi ---------- */
+const SHEET={L:2800,W:2070,uL:2780,uW:2050,kerf:4};
+const DVPSHEET={L:2745,W:1700};
+
+function readState(){
+  const g=(id,lo,hi)=>{let v=parseInt($(id).value,10);if(isNaN(v))v=lo;v=Math.min(hi,Math.max(lo,v));$(id).value=v;return v;};
+  return {
+    W:g("inW",400,3000), H:g("inH",500,2750), D:g("inD",250,900),
+    t:parseInt($("inT").value,10),
+    n:g("inSec",1,6), s:g("inShelf",0,8), dc:g("inDoors",0,6),
+    hts:g("inTsk",0,150),
+    showDoors:$("ckDoors").checked, showBack:$("ckBack").checked
+  };
+}
+
+function compute(st){
+  const {W,H,D,t,n,s,dc,hts}=st;
+  const innerW=W-2*t;
+  const secW=Math.floor((innerW-(n-1)*t)/n);
+  const innerH=H-2*t-hts;
+  const shelfD=dc>0?D-25:D-20;
+  const shelfW=secW-1;
+  const doorH=Math.max(0,H-hts-4);
+  const doorW=dc>0?Math.floor((W-4-(dc-1)*3)/dc):0;
+  const warns=[];
+  if(secW<200)warns.push("Seksiya kengligi "+secW+" mm — juda tor, seksiyalar sonini kamaytiring.");
+  if(H>SHEET.uL)warns.push("Balandlik listdan (2780 mm foydali) oshadi.");
+  if(dc>0&&doorW<250)warns.push("Eshik kengligi "+doorW+" mm — juda tor.");
+  if(dc>0&&doorW>600)warns.push("Eshik kengligi "+doorW+" mm — 600 mm dan keng eshik osilib qoladi, eshik sonini oshiring.");
+
+  // gaplar orasidagi polka joylashuvi
+  const gap=(innerH-s*t)/(s+1);
+  const shelfBottoms=[];// poldan (mm)
+  for(let i=1;i<=s;i++)shelfBottoms.push(hts+t+i*gap+(i-1)*t);
+
+  // Detallar: len = tekstura bo'ylab o'lcham
+  const parts=[];
+  const P=(code,name,len,wid,qty,e2,e04,mat)=>parts.push({code,name,len:mm(len),wid:mm(wid),qty,e2,e04,mat:mat||"LDSP "+t});
+  P("A","Yon devor",H,D,2,[H],[D],null);
+  P("B","Kryshka (tepa)",innerW,D,1,[innerW],[],null);
+  P("C","Taglik (dno)",innerW,D,1,[innerW],[],null);
+  if(hts>0)P("D","Tsokol planka",innerW,hts,2,[],[innerW],null);
+  if(n>1)P("E","Tik to'siq",innerH,D,n-1,[innerH],[],null);
+  if(s>0)P("F","Polka",shelfW,shelfD,s*n,[shelfW],[],null);
+  if(dc>0)P("G","Eshik (fasad)",doorH,doorW,dc,[doorH,doorH,doorW,doorW],[],null);
+  const back={code:"H",name:"Orqa devor",len:mm(H-4),wid:mm(W-4),qty:1,e2:[],e04:[],mat:"DVP 4"};
+
+  // Kromka
+  let e2len=0,e04len=0;
+  parts.forEach(p=>{e2len+=p.qty*p.e2.reduce((a,b)=>a+b,0);e04len+=p.qty*p.e04.reduce((a,b)=>a+b,0);});
+  const e2m=e2len/1000*1.05, e04m=e04len/1000*1.05;
+
+  // Furnitura
+  const kj=D>=450?3:2;
+  const konf=kj*(4+2*(n-1))+(hts>0?8:0);
+  const pins=s*n*4;
+  const hingePerDoor=doorH<900?2:doorH<1600?3:doorH<2100?4:5;
+  const hinges=dc*hingePerDoor;
+  const shurup=Math.ceil(2*(W+H)/150);
+  const pod=W>1200?6:4;
+  const hw=[
+    {name:"Konfirmat 7×50 (+zaglushka)",qty:konf,unit:"dona",pk:"konf"},
+    {name:"Polka tutqich (pin) 5 mm",qty:pins,unit:"dona",pk:"pin"},
+    {name:"Petlya (sharnir) 35 mm",qty:hinges,unit:"dona",pk:"petlya"},
+    {name:"Ruchka",qty:dc,unit:"dona",pk:"ruchka"},
+    {name:"Podpyatnik / regulyator",qty:pod,unit:"dona",pk:"pod"},
+    {name:"DVP shurup 3×16",qty:shurup,unit:"dona",pk:"shurup"},
+  ].filter(h=>h.qty>0);
+
+  // DVP list
+  const backFits=(W-4<=DVPSHEET.L&&H-4<=DVPSHEET.W)||(H-4<=DVPSHEET.L&&W-4<=DVPSHEET.W);
+  const dvpSheets=backFits?1:2;
+
+  return {st,innerW,secW,innerH,shelfD,shelfW,doorH,doorW,gap,shelfBottoms,parts,back,e2m,e04m,hw,kj,hingePerDoor,dvpSheets,warns};
+}
+
+/* ---------- Bichuv (guillotine qatorli joylash) ---------- */
+function packSheets(parts){
+  const items=[];
+  parts.forEach(p=>{for(let i=0;i<p.qty;i++)items.push({L:p.len,W:p.wid,label:p.code,name:p.name});});
+  items.sort((a,b)=>b.W-a.W||b.L-a.L);
+  const K=SHEET.kerf,SL=SHEET.uL,SW=SHEET.uW;
+  const sheets=[],skipped=[];
+  for(const it of items){
+    let L=it.L,W2=it.W,rot=false;
+    if(L>SL||W2>SW){
+      if(W2<=SL&&L<=SW){const tmp=L;L=W2;W2=tmp;rot=true;}
+      else{skipped.push(it);continue;}
+    }
+    let done=false;
+    for(const sh of sheets){
+      for(const row of sh.rows){
+        if(W2<=row.H&&row.x+L<=SL){
+          sh.parts.push({x:row.x,y:row.y,L,W:W2,label:it.label,rot});
+          row.x+=L+K;done=true;break;
+        }
+      }
+      if(done)break;
+      if(sh.nextY+W2<=SW){
+        const row={y:sh.nextY,H:W2,x:0};
+        sh.rows.push(row);
+        sh.parts.push({x:0,y:row.y,L,W:W2,label:it.label,rot});
+        row.x=L+K;sh.nextY+=W2+K;done=true;break;
+      }
+    }
+    if(!done){
+      const sh={rows:[],parts:[],nextY:0};
+      const row={y:0,H:W2,x:0};
+      sh.rows.push(row);
+      sh.parts.push({x:0,y:0,L,W:W2,label:it.label,rot});
+      row.x=L+K;sh.nextY=W2+K;
+      sheets.push(sh);
+    }
+  }
+  sheets.forEach(sh=>{
+    sh.used=sh.parts.reduce((a,p)=>a+p.L*p.W,0);
+    sh.util=sh.used/(SHEET.L*SHEET.W)*100;
+  });
+  return {sheets,skipped};
+}
+
+/* ---------- Renderlar ---------- */
+let M=null, packed=null;
+
+function renderParts(){
+  const rows=M.parts.map((p,i)=>{
+    const e2=p.e2.length?p.e2.map(v=>mm(v)).join(" + ")+" mm":"—";
+    const e04=p.e04.length?p.e04.map(v=>mm(v)).join(" + ")+" mm":"—";
+    return `<tr><td><span class="tag">${p.code}</span>${p.name}</td><td class="dim">${p.len} × ${p.wid}</td><td class="num">${p.qty}</td><td class="dim">${e2}</td><td class="dim">${e04}</td><td>${p.mat}</td></tr>`;
+  }).join("");
+  const b=M.back;
+  $("partsTbl").innerHTML=`<thead><tr><th>Detal</th><th>O'lcham, mm</th><th>Dona</th><th>Kromka 2 mm</th><th>Kromka 0.4 mm</th><th>Material</th></tr></thead><tbody>${rows}<tr><td><span class="tag">${b.code}</span>${b.name}</td><td class="dim">${b.len} × ${b.wid}</td><td class="num">${b.qty}</td><td class="dim">—</td><td class="dim">—</td><td>${b.mat}</td></tr></tbody>`;
+}
+
+function renderCut(){
+  packed=packSheets(M.parts);
+  const sc=560/SHEET.L;
+  let html="";
+  packed.sheets.forEach((sh,i)=>{
+    const rects=sh.parts.map(p=>{
+      const x=10+p.x, y=10+p.y;
+      const fs=Math.max(9,Math.min(15,Math.min(p.L,p.W)*sc*0.42));
+      return `<g><rect x="${(x*sc).toFixed(1)}" y="${(y*sc).toFixed(1)}" width="${(p.L*sc).toFixed(1)}" height="${(p.W*sc).toFixed(1)}" fill="var(--wood)" stroke="var(--ink)" stroke-width="0.7" opacity="0.9"/>
+      <text x="${((x+p.L/2)*sc).toFixed(1)}" y="${((y+p.W/2)*sc).toFixed(1)}" text-anchor="middle" dominant-baseline="middle" font-size="${fs}" fill="var(--ink)">${p.label} ${p.L}×${p.W}${p.rot?" ⤾":""}</text></g>`;
+    }).join("");
+    const w=SHEET.L*sc, h=SHEET.W*sc;
+    html+=`<div class="sheetblock"><div class="sheethead"><h4>List №${i+1}</h4><span>LDSP ${SHEET.L}×${SHEET.W} mm · to'ldirish ${sh.util.toFixed(0)}%</span></div>
+    <div class="pcard scroll" style="padding:10px"><svg viewBox="0 0 ${w.toFixed(0)} ${h.toFixed(0)}" width="100%" style="max-width:${w.toFixed(0)}px;display:block">
+    <rect x="0" y="0" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="var(--surface2)" stroke="var(--ink2)" stroke-width="1"/>${rects}</svg></div></div>`;
+  });
+  if(packed.skipped.length)html+=`<div class="warn">Listga sig'magan detallar: ${packed.skipped.map(p=>p.label+" "+p.L+"×"+p.W).join(", ")}</div>`;
+  html+=`<p class="hint">Kesish yo'li (kerf): 4 mm. Chetki tozalash: har tomondan 10 mm. Harflar «Detallar» bo'limidagi kodlar. ⤾ — tekstura ko'ndalang joylashdi.</p>`;
+  $("cutArea").innerHTML=html;
+  $("chipSheets").textContent=packed.sheets.length+" list";
+}
+
+/* --- Chizma yordamchisi --- */
+function panelSVG(wmm,hmm,holes,opts){
+  opts=opts||{};
+  const maxW=400,maxH=430;
+  const sc=Math.min(maxW/wmm,maxH/hmm);
+  const w=wmm*sc,h=hmm*sc,pad=44;
+  let s=`<svg viewBox="0 0 ${(w+pad*2).toFixed(0)} ${(h+pad*2).toFixed(0)}" width="100%" style="display:block;max-width:${(w+pad*2).toFixed(0)}px;margin:0 auto">`;
+  s+=`<rect x="${pad}" y="${pad}" width="${w.toFixed(1)}" height="${h.toFixed(1)}" fill="var(--surface2)" stroke="var(--ink)" stroke-width="1.2"/>`;
+  // o'lcham chiziqlari
+  s+=`<line x1="${pad}" y1="${pad-16}" x2="${pad+w}" y2="${pad-16}" stroke="var(--ink2)" stroke-width="0.8"/>
+  <text x="${pad+w/2}" y="${pad-21}" text-anchor="middle" font-size="11.5" fill="var(--ink)">${wmm}</text>
+  <line x1="${pad-16}" y1="${pad}" x2="${pad-16}" y2="${pad+h}" stroke="var(--ink2)" stroke-width="0.8"/>
+  <text x="${pad-21}" y="${pad+h/2}" text-anchor="middle" font-size="11.5" fill="var(--ink)" transform="rotate(-90 ${pad-21} ${pad+h/2})">${hmm}</text>`;
+  if(opts.frontEdge){ // old torets (2mm kromka) belgilash — pastki chet
+    s+=`<line x1="${pad}" y1="${(pad+h+5).toFixed(1)}" x2="${(pad+w).toFixed(1)}" y2="${(pad+h+5).toFixed(1)}" stroke="var(--accent)" stroke-width="2.5"/>
+    <text x="${pad+w/2}" y="${(pad+h+19).toFixed(1)}" text-anchor="middle" font-size="10.5" fill="var(--accent)">old torets — kromka 2 mm</text>`;
+  }
+  (holes||[]).forEach(hl=>{
+    const cx=pad+hl.x*sc, cy=pad+hl.y*sc;
+    const r=Math.max(2.6,hl.d*sc/2);
+    s+=`<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r.toFixed(1)}" fill="none" stroke="${hl.c||"var(--accent)"}" stroke-width="1.4"/>
+    <line x1="${(cx-r-3).toFixed(1)}" y1="${cy.toFixed(1)}" x2="${(cx+r+3).toFixed(1)}" y2="${cy.toFixed(1)}" stroke="${hl.c||"var(--accent)"}" stroke-width="0.7"/>
+    <line x1="${cx.toFixed(1)}" y1="${(cy-r-3).toFixed(1)}" x2="${cx.toFixed(1)}" y2="${(cy+r+3).toFixed(1)}" stroke="${hl.c||"var(--accent)"}" stroke-width="0.7"/>`;
+  });
+  s+="</svg>";
+  return s;
+}
+function holeRows(holes){
+  if(!holes.length)return "";
+  const rows=holes.map((h,i)=>`<tr><td>${i+1}</td><td>${mm(h.x)}</td><td>${mm(h.y)}</td><td>Ø${h.d}</td><td>${h.depth}</td><td>${h.what}</td></tr>`).join("");
+  return `<table class="holetbl"><thead><tr><th>№</th><th>X (chapdan)</th><th>Y (yuqoridan)</th><th>Diametr</th><th>Chuqurlik</th><th>Vazifasi</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function renderDrawings(){
+  const {st,innerW,secW,innerH,shelfBottoms,doorH,doorW,kj,hingePerDoor}=M;
+  const {W,H,D,t,n,s,dc,hts}=st;
+  const cards=[];
+  const konfX=D=>{const xs=[60,D-60];if(D>=450)xs.splice(1,0,Math.round(D/2));return xs;};
+
+  // A: Yon devor — ichki yuzadan qaralgan, X=old chetdan, Y=yuqoridan
+  {
+    const holes=[];
+    konfX(D).forEach(x=>holes.push({x,y:t/2,d:7,depth:"o'tma",what:"konfirmat → kryshka"}));
+    konfX(D).forEach(x=>holes.push({x,y:H-hts-t/2,d:7,depth:"o'tma",what:"konfirmat → taglik"}));
+    if(hts>0){
+      holes.push({x:t/2+2,y:H-hts/2,d:7,depth:"o'tma",what:"konfirmat → old tsokol"});
+      holes.push({x:D-t/2-2,y:H-hts/2,d:7,depth:"o'tma",what:"konfirmat → orqa tsokol"});
+    }
+    shelfBottoms.forEach(b=>{
+      [37,D-37].forEach(x=>holes.push({x,y:H-b,d:5,depth:"12 mm",what:"polka pin",c:"var(--wood2)"}));
+    });
+    cards.push({title:"A · Yon devor (2 dona, ko'zgu juft)",sub:`${H} × ${D} mm · LDSP ${t} · ichki yuzadan ko'rinish, X — old chetdan`,svg:panelSVG(D,H,holes),holes,
+      note:"Ikkinchi yon devor — ko'zgu aksi (X o'lchamlari orqa chetdan)."});
+  }
+  // B: Kryshka
+  {
+    const holes=[];
+    for(let i=1;i<n;i++){
+      const x=i*secW+(i-1)*t+t/2;
+      konfX(D).forEach(y=>holes.push({x,y,d:7,depth:"o'tma",what:"konfirmat → to'siq"}));
+    }
+    cards.push({title:"B · Kryshka (tepa)",sub:`${innerW} × ${D} mm · toretslariga yon devordan konfirmat kiradi (Ø5, chuq. 50)`,
+      svg:panelSVG(innerW,D,holes,{frontEdge:true}),holes,
+      note:n>1?"":"To'siq yo'q — yuzada teshik talab qilinmaydi."});
+  }
+  // C: Taglik (kryshka bilan bir xil)
+  {
+    const holes=[];
+    for(let i=1;i<n;i++){
+      const x=i*secW+(i-1)*t+t/2;
+      konfX(D).forEach(y=>holes.push({x,y,d:7,depth:"o'tma",what:"konfirmat → to'siq"}));
+    }
+    cards.push({title:"C · Taglik (dno)",sub:`${innerW} × ${D} mm · joylashuvi kryshka bilan bir xil`,svg:panelSVG(innerW,D,holes,{frontEdge:true}),holes,note:""});
+  }
+  // E: To'siq
+  if(n>1){
+    const holes=[];
+    shelfBottoms.forEach(b=>{
+      const y=innerH-(b-hts-t);
+      [37,D-37].forEach(x=>holes.push({x,y,d:5,depth:"12 mm (2 yuzada)",what:"polka pin",c:"var(--wood2)"}));
+    });
+    cards.push({title:`E · Tik to'siq (${n-1} dona)`,sub:`${innerH} × ${D} mm · yuqori/pastki toretsga konfirmat Ø5×50 kiradi`,svg:panelSVG(D,innerH,holes),holes,
+      note:"Pin teshiklari ikkala yuzada bir xil koordinatada."});
+  }
+  // G: Eshik
+  if(dc>0){
+    const holes=[];
+    const hys=[];
+    if(hingePerDoor===2)hys.push(100,doorH-100);
+    else{for(let i=0;i<hingePerDoor;i++)hys.push(Math.round(100+(doorH-200)*i/(hingePerDoor-1)));}
+    hys.forEach(y=>holes.push({x:22,y,d:35,depth:"12 mm",what:"petlya kosasi"}));
+    const hc=Math.round(doorH/2);
+    holes.push({x:doorW-30,y:hc-48,d:5,depth:"o'tma",what:"ruchka"});
+    holes.push({x:doorW-30,y:hc+48,d:5,depth:"o'tma",what:"ruchka (96 mm oraliq)"});
+    cards.push({title:`G · Eshik (${dc} dona)`,sub:`${doorH} × ${doorW} mm · petlya ${hingePerDoor} dona/eshik · ichki yuzadan ko'rinish`,svg:panelSVG(doorW,doorH,holes),holes,
+      note:"Qarama-qarshi ochiladigan eshiklar — ko'zgu aksi. Petlya kosasi chetdan 22 mm."});
+  }
+  // F: Polka
+  if(s>0){
+    cards.push({title:`F · Polka (${s*st.n} dona)`,sub:`${M.shelfW} × ${M.shelfD} mm`,svg:panelSVG(M.shelfW,M.shelfD,[],{frontEdge:true}),holes:[],
+      note:"Teshik talab qilinmaydi — pin ustiga qo'yiladi. Old toretsga 2 mm kromka."});
+  }
+  $("drawGrid").innerHTML=cards.map(c=>`<div class="drawcard"><h4>${c.title}</h4><div class="sub">${c.sub}</div>${c.svg}${holeRows(c.holes)}${c.note?`<p class="note">${c.note}</p>`:""}</div>`).join("");
+}
+
+function renderMaterials(){
+  const ldspCnt=packed.sheets.length;
+  const rows=[
+    {name:`LDSP ${M.st.t} mm, list ${SHEET.L}×${SHEET.W}`,qty:ldspCnt,unit:"list",pk:"ldsp"},
+    {name:`DVP 4 mm, list ${DVPSHEET.L}×${DVPSHEET.W}`,qty:M.dvpSheets,unit:"list",pk:"dvp"},
+    {name:"Kromka PVX 2 mm",qty:+M.e2m.toFixed(1),unit:"m",pk:"e2"},
+    {name:"Kromka PVX 0.4 mm",qty:+M.e04m.toFixed(1),unit:"m",pk:"e04"},
+  ];
+  let total=0;
+  const tr=r=>{
+    const sum=r.qty*(prices[r.pk]||0);total+=sum;
+    return `<tr><td>${r.name}</td><td class="num">${r.qty} ${r.unit}</td><td class="num"><input class="pricein" data-pk="${r.pk}" type="number" value="${prices[r.pk]}" min="0" step="100"></td><td class="num">${fmt(sum)}</td></tr>`;
+  };
+  $("matTbl").innerHTML=`<thead><tr><th>Material</th><th>Miqdor</th><th>Narx, so'm</th><th>Summa</th></tr></thead><tbody>${rows.map(tr).join("")}</tbody>`;
+  $("hwTbl").innerHTML=`<thead><tr><th>Furnitura</th><th>Miqdor</th><th>Narx, so'm</th><th>Summa</th></tr></thead><tbody>${M.hw.map(h=>tr({name:h.name,qty:h.qty,unit:h.unit,pk:h.pk})).join("")}</tbody>`;
+  $("totalCost").textContent=fmt(total)+" so'm";
+  $("chipCost").textContent=fmt(total);
+  document.querySelectorAll(".pricein").forEach(inp=>{
+    inp.addEventListener("change",()=>{
+      const v=parseInt(inp.value,10);
+      prices[inp.dataset.pk]=isNaN(v)?0:Math.max(0,v);
+      savePrices();renderMaterials();
+    });
+  });
+}
+
+/* ---------- 3D ---------- */
+let scene,camera,renderer,group,theta=0.55,phi=1.18,radius=4;
+function themeColor(name){return getComputedStyle(document.documentElement).getPropertyValue(name).trim();}
+function init3D(){
+  const canvas=$("c3d");
+  renderer=new THREE.WebGLRenderer({canvas,antialias:true});
+  scene=new THREE.Scene();
+  camera=new THREE.PerspectiveCamera(45,1,0.05,60);
+  scene.add(new THREE.AmbientLight(0xffffff,0.75));
+  const dl=new THREE.DirectionalLight(0xffffff,0.65);dl.position.set(2.5,4,3);scene.add(dl);
+  const dl2=new THREE.DirectionalLight(0xffffff,0.25);dl2.position.set(-3,2,-2);scene.add(dl2);
+  group=new THREE.Group();scene.add(group);
+  applyTheme3D();
+  // orbit
+  let drag=false,px=0,py=0;
+  canvas.addEventListener("pointerdown",e=>{drag=true;px=e.clientX;py=e.clientY;canvas.setPointerCapture(e.pointerId);canvas.style.cursor="grabbing";});
+  canvas.addEventListener("pointermove",e=>{
+    if(!drag)return;
+    theta-=(e.clientX-px)*0.008; phi-=(e.clientY-py)*0.008;
+    phi=Math.min(1.55,Math.max(0.15,phi));
+    px=e.clientX;py=e.clientY;draw3D();
+  });
+  canvas.addEventListener("pointerup",e=>{drag=false;canvas.style.cursor="grab";});
+  canvas.addEventListener("wheel",e=>{e.preventDefault();radius*=e.deltaY>0?1.08:0.93;radius=Math.min(20,Math.max(1,radius));draw3D();},{passive:false});
+  new ResizeObserver(resize3D).observe($("c3dwrap"));
+  if(window.matchMedia){
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change",()=>{applyTheme3D();draw3D();});
+  }
+  resize3D();
+}
+function applyTheme3D(){
+  scene.background=new THREE.Color(themeColor("--canvas")||"#e4e7e2");
+  const old=scene.getObjectByName("grid");if(old)scene.remove(old);
+  const grid=new THREE.GridHelper(8,32,new THREE.Color(themeColor("--grid1")),new THREE.Color(themeColor("--grid2")));
+  grid.name="grid";scene.add(grid);
+}
+function resize3D(){
+  const el=$("c3dwrap");
+  const w=el.clientWidth,h=el.clientHeight;
+  if(!w||!h)return;
+  renderer.setPixelRatio(Math.min(2,window.devicePixelRatio||1));
+  renderer.setSize(w,h,false);
+  camera.aspect=w/h;camera.updateProjectionMatrix();
+  draw3D();
+}
+function box(w,h,d,x,y,z,color){
+  const g=new THREE.BoxGeometry(w/1000,h/1000,d/1000);
+  const m=new THREE.Mesh(g,new THREE.MeshLambertMaterial({color}));
+  m.position.set(x/1000,y/1000,z/1000);
+  const e=new THREE.LineSegments(new THREE.EdgesGeometry(g),new THREE.LineBasicMaterial({color:0x4a3a28}));
+  e.position.copy(m.position);
+  group.add(m);group.add(e);
+}
+function build3D(){
+  while(group.children.length)group.remove(group.children[0]);
+  const {st,innerW,secW,innerH,shelfBottoms,doorH,doorW}=M;
+  const {W,H,D,t,n,s,dc,hts,showDoors,showBack}=st;
+  const wood=new THREE.Color(themeColor("--wood")||"#C9A776").getHex();
+  const wood2=new THREE.Color(themeColor("--wood2")||"#B08D5F").getHex();
+  box(t,H,D,-(W-t)/2,H/2,0,wood); box(t,H,D,(W-t)/2,H/2,0,wood);
+  box(innerW,t,D,0,H-t/2,0,wood);
+  box(innerW,t,D,0,hts+t/2,0,wood);
+  if(hts>0){box(innerW,hts,t,0,hts/2,D/2-t/2-2,wood2);box(innerW,hts,t,0,hts/2,-D/2+t/2,wood2);}
+  const X0=-W/2+t;
+  for(let i=1;i<n;i++){
+    const x=X0+i*secW+(i-1)*t+t/2;
+    box(t,innerH,D,x,hts+t+innerH/2,0,wood);
+  }
+  const shD=M.shelfD;
+  for(let si=0;si<n;si++){
+    const cx=X0+si*(secW+t)+secW/2;
+    shelfBottoms.forEach(b=>box(secW-1,t,shD,cx,b+t/2,-D/2+shD/2,wood));
+  }
+  if(showBack)box(W-4,H-4,4,0,H/2,-D/2-2,wood2);
+  if(showDoors&&dc>0){
+    for(let i=0;i<dc;i++){
+      const x=-W/2+2+doorW/2+i*(doorW+3);
+      box(doorW,doorH,t,x,hts+2+doorH/2,D/2+t/2+1,wood2);
+      const hx=i<dc/2?x+doorW/2-40:x-doorW/2+40;
+      box(12,110,22,hx,hts+2+doorH/2,D/2+t+12,0x555555);
+    }
+  }
+  $("hud").innerHTML=`<span class="hudchip">${W} × ${H} × ${D} mm</span><span class="hudchip">seksiya: ${secW} mm</span>`;
+  radius=Math.max(W,H)/1000*1.9+0.6;
+  draw3D();
+}
+function draw3D(){
+  if(!renderer)return;
+  const cy=(M?M.st.H:2200)/2000;
+  camera.position.set(radius*Math.sin(phi)*Math.sin(theta),cy+radius*Math.cos(phi),radius*Math.sin(phi)*Math.cos(theta));
+  camera.lookAt(0,cy,0);
+  renderer.render(scene,camera);
+}
+
+/* ---------- Umumiy ---------- */
+function recompute(){
+  M=compute(readState());
+  $("warns").innerHTML=M.warns.map(w=>`<div class="warn">⚠ ${w}</div>`).join("");
+  const totalParts=M.parts.reduce((a,p)=>a+p.qty,0)+1;
+  $("chipParts").textContent=totalParts+" dona";
+  $("chipEdge").textContent=M.e2m.toFixed(1)+" m";
+  renderParts();renderCut();renderDrawings();renderMaterials();build3D();
+}
+["inW","inH","inD","inT","inSec","inShelf","inDoors","inTsk"].forEach(id=>{
+  $(id).addEventListener("change",recompute);
+});
+$("ckDoors").addEventListener("change",recompute);
+$("ckBack").addEventListener("change",recompute);
+$("btnPrint").addEventListener("click",()=>window.print());
+$("tabs").addEventListener("click",e=>{
+  const b=e.target.closest(".tab");if(!b)return;
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t===b));
+  ["t3d","tparts","tcut","tdraw","tmat"].forEach(id=>$(id).hidden=(id!==b.dataset.tab));
+  if(b.dataset.tab==="t3d")resize3D();
+});
+$("tparts").hidden=true;$("tcut").hidden=true;$("tdraw").hidden=true;$("tmat").hidden=true;
+$("t3d").hidden=false;
+init3D();
+recompute();
+</script>
