@@ -1,9 +1,10 @@
 # Shkaf Ustasi
 
-Brauzerda ishlaydigan **parametrik shkaf konstruktori** — korpus mebel ustalari uchun «Базис-Мебельщик»ning soddalashtirilgan bepul muqobili. O'rnatish talab qilinmaydi: bitta `index.html` faylni brauzerda ochish kifoya.
+Brauzerda ishlaydigan **parametrik korpus mebel konstruktori** — mebel ustalari uchun «Базис-Мебельщик»ning soddalashtirilgan bepul muqobili. O'rnatish talab qilinmaydi: bitta `index.html` faylni brauzerda ochish kifoya.
 
 ## Imkoniyatlar
 
+- **Zakaz rejimi** — bitta zakazga bir nechta buyum kiritiladi (shkaf, oshxona modullari, trimo, tumba — shablonlar bilan); bichuv, materiallar va tannarx butun zakaz bo'yicha jamlanadi, zakaz brauzerda avtomatik saqlanadi
 - **3D model** — o'lchamlar kiritilishi bilan darhol yangilanadi (Three.js), sichqoncha bilan aylantirish/masshtablash, eshik va orqa devorni yashirish
 - **Detallar ro'yxati** — har bir detal o'lchami, soni, kromka (PVX 2 mm / 0.4 mm) hisobi bilan
 - **Bichuv kartasi** — detallar LDSP listlarga (2800×2070 mm) avtomatik joylashtiriladi: guillotine qatorli algoritm, kesish yo'li (kerf) 4 mm, listlar soni va to'ldirish foizi
